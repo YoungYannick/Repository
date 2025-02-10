@@ -1,0 +1,4 @@
+sudo bash -c "bash <(curl https://i.hiddify.com/v10.80.11)"
+sudo bash -c "bash <(curl https://i.hiddify.com/release)"
+sudo bash -c "bash <(curl https://i.hiddify.com/custom)"
+sudo bash <(curl https://raw.githubusercontent.com/hiddify/Hiddify-Manager/main/common/download.sh) "v10.70.9"
