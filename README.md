@@ -24,6 +24,12 @@ https://raw.githubusercontent.com/YoungYannick/Repository/refs/heads/master/imag
 https://hub.gitmirror.com/https://raw.githubusercontent.com/YoungYannick/Repository/refs/heads/master/images/main/Yannick.png
 ```
 ---
+## 📦 发行程序/文件
+
+| 文件名  | 使用说明/用途 | 发行版本 | 发行地址 |
+|------|---------|------|------|
+| YoungYannick Port Tool | 端口小工具 | V1.1.0.0 | [GitHub](https://github.com/YoungYannick/Repository/releases/tag/V1.1.0.0) [Gitee](https://gitee.com/YoungYannick/Repository/releases/tag/V1.1.0.0) |
+---
 ## 📚 仓库说明
 
 - 本仓库用于存放一些个人常用的资源，包括但不限于：
