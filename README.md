@@ -10,18 +10,18 @@
 
 | 类型        | 格式模板                                                                                                            |
 |-------------|-----------------------------------------------------------------------------------------------------------------|
-| 直接访问    | `https://raw.githubusercontent.com/YoungYannick/Repository/refs/heads/<分支>/<路径>`                           |
-| 加速访问    | `https://hub.gitmirror.com/https://raw.githubusercontent.com/YoungYannick/Repository/refs/heads/<分支>/<路径>` |
+| 直接访问    | `https://raw.githubusercontent.com/YoungYannick/Repository/<分支>/<路径>`                           |
+| 加速访问    | `https://hub.gitmirror.com/https://raw.githubusercontent.com/YoungYannick/Repository/<分支>/<路径>` |
 
 **🌐 示例演示**：
 
 - 直接访问示例
 ```
-https://raw.githubusercontent.com/YoungYannick/Repository/refs/heads/master/images/main/Yannick.png
+https://raw.githubusercontent.com/YoungYannick/Repository/master/images/main/Yannick.png
 ```
 - 加速访问示例
 ```
-https://hub.gitmirror.com/https://raw.githubusercontent.com/YoungYannick/Repository/refs/heads/master/images/main/Yannick.png
+https://hub.gitmirror.com/https://raw.githubusercontent.com/YoungYannick/Repository/master/images/main/Yannick.png
 ```
 ---
 ## 📦 发行程序/文件
