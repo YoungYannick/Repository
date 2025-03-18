@@ -122,7 +122,7 @@ proxy-groups:
       - DIRECT
   - name: DNS_Proxy
     type: select
-    icon: https://gitee.com/YoungYannick/Repository/raw/master/images/icons/Color/Proxy.png
+    icon: https://gitee.com/YoungYannick/Repository/raw/master/images/icons/Color/DNS2.png
     use:
       - xxxxx_provider
     proxies:
