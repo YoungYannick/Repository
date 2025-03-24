@@ -89,7 +89,7 @@ proxy-providers:
 proxy-groups:
   - name: 手动切换
     type: select
-    icon: https://raw.githubusercontent.com/YoungYannick/Repository/master/images/main/Yannick.png
+    icon: https://raw.githubusercontent.com/YoungYannick/Repository/master/images/main/Cool/Cool-8000_10.png
     use:
       - xxxxx_provider
     proxies: null
