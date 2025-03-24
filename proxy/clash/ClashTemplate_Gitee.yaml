@@ -89,7 +89,7 @@ proxy-providers:
 proxy-groups:
   - name: 手动切换
     type: select
-    icon: https://gitee.com/YoungYannick/Repository/raw/master/images/main/Cool/Cool-8000_10.png
+    icon: https://gitee.com/YoungYannick/Repository/raw/master/images/main/Cool/Cool-500.png
     use:
       - xxxxx_provider
     proxies: null
