@@ -26,10 +26,11 @@ https://hub.gitmirror.com/https://raw.githubusercontent.com/YoungYannick/Reposit
 ---
 ## 📦 发行程序/文件
 
-| 文件名  | 使用说明/用途 | 发行版本 | 发行地址 |
-|------|---------|------|------|
-| YoungYannick Port Tool | 端口小工具 | V1.1.0.0 | [GitHub](https://github.com/YoungYannick/Repository/releases/tag/V1.1.0.0) [Gitee](https://gitee.com/YoungYannick/Repository/releases/tag/V1.1.0.0) |
-| YoungYannick's Weapon Analysis Tool | 多功能BF005文件处理工具 | V2025.3.24.1 | [QQ](https://qm.qq.com/q/UegaRlbOM2) |
+| 文件名                                          | 使用说明/用途       | 发行版本 | 发行地址 |
+|----------------------------------------------|---------------|------|------|
+| YoungYannick Port Tool                       | 端口小工具         | V1.1.0.0 | [GitHub](https://github.com/YoungYannick/Repository/releases/tag/V1.1.0.0) [Gitee](https://gitee.com/YoungYannick/Repository/releases/tag/V1.1.0.0) |
+| YoungYannick's Weapon Analysis Tool          | 多功能BF005文件处理工具 | V2025.4.3.1 | [QQ](https://qm.qq.com/q/UegaRlbOM2) |
+| YoungYannick's Network Authentication System | 网络验证工具| V2025.4.3.1 | [QQ](https://qm.qq.com/q/UegaRlbOM2) |
 
 ---
 
