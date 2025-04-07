@@ -1,6 +1,4 @@
 /**
- * Enhanced by YoungYannick on 2025.04.07 16:30
- *
  * ## 主要参数
  * - `in`：指定输入节点名的类型。默认自动检测，优先级：中文 -> 国旗 -> 英文全称 -> 英文缩写。
  *   - 可选值：
@@ -17,7 +15,7 @@
  * - `nm`：保留未匹配到的节点名。默认为 `true`（保留）。
  *
  * ## 分隔符参数
- * - `fgf`：节点名前缀或国旗分隔符。默认为空格。
+ * - `fgf`：节点名前缀或国旗分隔符。默认为无。
  * - `sn`：国家与序号间的分隔符。默认为空格。
  *
  * ## 序号参数
@@ -83,7 +81,7 @@ const nx = inArg.nx || false,
     addflag = inArg.flag !== undefined ? inArg.flag : true,
     nm = inArg.nm !== undefined ? inArg.nm : true; // 默认保留未匹配到的节点名
 
-const FGF = inArg.fgf == undefined ? " " : decodeURI(inArg.fgf),
+const FGF = inArg.fgf == undefined ? "" : decodeURI(inArg.fgf),
     XHFGF = inArg.sn == undefined ? " " : decodeURI(inArg.sn),
     FNAME = inArg.name == undefined ? "" : decodeURI(inArg.name),
     BLKEY = inArg.blkey == undefined ? "" : decodeURI(inArg.blkey),
@@ -161,6 +159,7 @@ const rurekey = {
     法国: /巴黎/g,
     G: /\d\s?GB/gi,
     Esnc: /esnc/gi,
+    中国: /CN/g,
 };
 
 let GetK = false, AMK = [];
@@ -303,7 +302,9 @@ function operator(pro) {
             e.name = keyover.join(FGF);
         } else {
             if (nm) {
-                e.name = FNAME + FGF + e.name;
+                const matchNum = e.name.match(/\d+$/); // 提取末尾数字
+                const num = matchNum ? matchNum[0] : "01"; // 默认 "01"
+                e.name = `❓未知【YoungYannick】${num}`; // 直接拼接，无空格
             } else {
                 e.name = null;
             }
