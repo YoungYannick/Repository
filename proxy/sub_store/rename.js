@@ -297,7 +297,7 @@ function operator(pro) {
                 }
             }
             keyover = keyover
-                .concat(firstName, usflag, nNames, findKeyValue + "【YoungYannick】", retainKey, ikey, ikeys)
+                .concat(firstName, usflag, nNames, findKeyValue, "【YoungYannick】", retainKey, ikey, ikeys)
                 .filter((k) => k !== "");
             e.name = keyover.join(FGF);
         } else {
