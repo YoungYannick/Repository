@@ -361,7 +361,7 @@ function jxh(e) {
     // 按字符顺序和数字大小排序
     result.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-    // 将未知节点放到末尾
+    // 将未知节点按原样放到末尾（保留序号）
     const finalResult = [...result, ...unknownNodes];
 
     // 修改原数组
