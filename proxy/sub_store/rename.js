@@ -361,7 +361,7 @@ function jxh(e) {
     // 对未知节点重新编号，确保唯一性
     unknownNodes.forEach((node, index) => {
         const paddedIndex = (index + 1).toString().padStart(2, '0'); // 至少两位
-        node.name = `️🇺🇳 未知的 【YoungYannick】${paddedIndex}`;
+        node.name = `️🇺🇳 未知 【YoungYannick】${paddedIndex}`;
     });
 
     // 将未知节点追加到末尾
