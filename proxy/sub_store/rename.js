@@ -303,7 +303,7 @@ function operator(pro) {
             if (nm) {
                 const matchNum = e.name.match(/\d+$/); // 提取末尾数字
                 const num = matchNum ? matchNum[0] : "01"; // 默认 "01"
-                e.name = '️🇺🇳 未知的 【YoungYannick】'+ num;
+                e.name = '️🇺🇳 未知 【YoungYannick】'+ num;
                 e.isUnknown = true; // 添加标识，表示这是未匹配节点
             } else {
                 e.name = null;
@@ -361,7 +361,7 @@ function jxh(e) {
     // 对未知节点重新编号，确保唯一性
     unknownNodes.forEach((node, index) => {
         const paddedIndex = (index + 1).toString().padStart(2, '0'); // 至少两位
-        node.name = `️🇺🇳 未知 【YoungYannick】${paddedIndex}`;
+        node.name = `️🇺🇳 未知的 【YoungYannick】${paddedIndex}`;
     });
 
     // 将未知节点追加到末尾
