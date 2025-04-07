@@ -299,7 +299,7 @@ function operator(pro) {
             keyover = keyover
                 .concat(firstName, usflag, nNames, findKeyValue + "【YoungYannick】", retainKey, ikey, ikeys)
                 .filter((k) => k !== "");
-            e.name = keyover.join("");
+            e.name = keyover.join(FGF);
         } else {
             if (nm) {
                 const matchNum = e.name.match(/\d+$/); // 提取末尾数字
