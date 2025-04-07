@@ -303,7 +303,7 @@ function operator(pro) {
             if (nm) {
                 const matchNum = e.name.match(/\d+$/); // 提取末尾数字
                 const num = matchNum ? matchNum[0] : "01"; // 默认 "01"
-                e.name = '️🏴‍☠️ 未知 【YoungYannick】'+ num;
+                e.name = '️🇺🇳 未知 【YoungYannick】'+ num;
             } else {
                 e.name = null;
             }
