@@ -81,7 +81,7 @@ const nx = inArg.nx || false,
     addflag = inArg.flag !== undefined ? inArg.flag : true,
     nm = inArg.nm !== undefined ? inArg.nm : true; // 默认保留未匹配到的节点名
 
-const FGF = inArg.fgf == undefined ? "" : decodeURI(inArg.fgf),
+const FGF = inArg.fgf == undefined ? " " : decodeURI(inArg.fgf),
     XHFGF = inArg.sn == undefined ? " " : decodeURI(inArg.sn),
     FNAME = inArg.name == undefined ? "" : decodeURI(inArg.name),
     BLKEY = inArg.blkey == undefined ? "" : decodeURI(inArg.blkey),
