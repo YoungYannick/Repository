@@ -304,6 +304,7 @@ function operator(pro) {
                 const matchNum = e.name.match(/\d+$/); // 提取末尾数字
                 const num = matchNum ? matchNum[0] : "01"; // 默认 "01"
                 e.name = '️🇺🇳 未知 【YoungYannick】'+ num;
+                e.isUnknown = true; // 添加标识，表示这是未匹配节点
             } else {
                 e.name = null;
             }
@@ -321,12 +322,12 @@ function operator(pro) {
 function getList(arg) { switch (arg) { case 'us': return EN; case 'gq': return FG; case 'quan': return QC; default: return ZH; } }
 // prettier-ignore
 function jxh(e) {
-    // 分离未知节点和其他节点
-    const unknownNodes = e.filter(node => node.name.includes("🇺🇳 未知"));
-    const otherNodes = e.filter(node => !node.name.includes("🇺🇳 未知"));
+    // 分离已知和未知节点
+    const knownNodes = e.filter(node => !node.isUnknown);
+    const unknownNodes = e.filter(node => node.isUnknown);
 
-    // 按名称分组
-    const grouped = otherNodes.reduce((acc, node) => {
+    // 对已知节点进行原有分组和排序
+    const grouped = knownNodes.reduce((acc, node) => {
         const baseName = node.name.replace(/\d+$/, '').trim(); // 去掉末尾数字
         if (!acc[baseName]) {
             acc[baseName] = [];
@@ -335,7 +336,6 @@ function jxh(e) {
         return acc;
     }, {});
 
-    // 对每个组排序并重命名
     const result = [];
     for (const baseName in grouped) {
         const nodes = grouped[baseName];
@@ -353,19 +353,23 @@ function jxh(e) {
         // 重命名
         nodes.forEach((node, index) => {
             const paddedIndex = (index + 1).toString().padStart(padLength, '0');
-            node.name = `${baseName}${XHFGF}${paddedIndex}`; // XHFGF 为分隔符
+            node.name = `${baseName}${XHFGF}${paddedIndex}`;
             result.push(node);
         });
     }
 
-    // 按字符顺序和数字大小排序
+    // 对已知节点按字符顺序和数字大小排序
     result.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-    // 将未知节点按原样放到末尾（保留序号）
-    const finalResult = [...result, ...unknownNodes];
+    // 将未知节点追加到末尾，并保持其原有顺序
+    result.push(...unknownNodes);
 
     // 修改原数组
-    e.splice(0, e.length, ...finalResult);
+    e.splice(0, e.length, ...result);
+
+    // 清理临时标识
+    e.forEach(node => delete node.isUnknown);
+
     return e;
 }
 // prettier-ignore
