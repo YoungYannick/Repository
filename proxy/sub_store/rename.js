@@ -322,8 +322,8 @@ function getList(arg) { switch (arg) { case 'us': return EN; case 'gq': return F
 // prettier-ignore
 function jxh(e) {
     // 分离未知节点和其他节点
-    const unknownNodes = e.filter(node => node.name.includes('未知'));
-    const otherNodes = e.filter(node => !node.name.includes('未知'));
+    const unknownNodes = e.filter(node => node.name.includes("🇺🇳 未知"));
+    const otherNodes = e.filter(node => !node.name.includes("🇺🇳 未知"));
 
     // 按名称分组
     const grouped = otherNodes.reduce((acc, node) => {
