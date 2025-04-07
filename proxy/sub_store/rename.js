@@ -23,7 +23,7 @@
  * - `flag`：节点名前添加国旗。默认为 `true`（添加）。
  *
  * ## 前缀参数
- * - `name`：节点名前添加机场名称前缀。默认为空。
+ * - `name`：节点名前添加机场名称前缀。默认为空格。
  * - `nf`：将 `name` 的前缀置于最前。默认为 `false`。
  *
  * ## 保留参数
@@ -81,7 +81,7 @@ const nx = inArg.nx || false,
     addflag = inArg.flag !== undefined ? inArg.flag : true,
     nm = inArg.nm !== undefined ? inArg.nm : true; // 默认保留未匹配到的节点名
 
-const FGF = inArg.fgf == undefined ? "" : decodeURI(inArg.fgf),
+const FGF = inArg.fgf == undefined ? " " : decodeURI(inArg.fgf),
     XHFGF = inArg.sn == undefined ? " " : decodeURI(inArg.sn),
     FNAME = inArg.name == undefined ? "" : decodeURI(inArg.name),
     BLKEY = inArg.blkey == undefined ? "" : decodeURI(inArg.blkey),
@@ -159,7 +159,7 @@ const rurekey = {
     法国: /巴黎/g,
     G: /\d\s?GB/gi,
     Esnc: /esnc/gi,
-    中国: /CN/g,
+    中国: /CN|China/gi,
 };
 
 let GetK = false, AMK = [];
@@ -299,7 +299,7 @@ function operator(pro) {
             keyover = keyover
                 .concat(firstName, usflag, nNames, findKeyValue + "【YoungYannick】", retainKey, ikey, ikeys)
                 .filter((k) => k !== "");
-            e.name = keyover.join(FGF);
+            e.name = keyover.join("");
         } else {
             if (nm) {
                 const matchNum = e.name.match(/\d+$/); // 提取末尾数字
