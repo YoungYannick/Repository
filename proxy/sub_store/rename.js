@@ -339,18 +339,15 @@ function jxh(e) {
     const result = [];
     for (const baseName in grouped) {
         const nodes = grouped[baseName];
-        // 按末尾数字排序
         nodes.sort((a, b) => {
             const numA = parseInt(a.name.match(/\d+$/) || 0);
             const numB = parseInt(b.name.match(/\d+$/) || 0);
             return numA - numB;
         });
 
-        // 确定补零位数
         const maxDigits = Math.max(...nodes.map(node => (node.name.match(/\d+$/) || ['0'])[0].length));
-        const padLength = maxDigits > 1 ? maxDigits : 2; // 至少补到2位
+        const padLength = maxDigits > 1 ? maxDigits : 2;
 
-        // 重命名
         nodes.forEach((node, index) => {
             const paddedIndex = (index + 1).toString().padStart(padLength, '0');
             node.name = `${baseName}${XHFGF}${paddedIndex}`;
@@ -358,10 +355,16 @@ function jxh(e) {
         });
     }
 
-    // 对已知节点按字符顺序和数字大小排序
+    // 对已知节点排序
     result.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-    // 将未知节点追加到末尾，并保持其原有顺序
+    // 对未知节点重新编号，确保唯一性
+    unknownNodes.forEach((node, index) => {
+        const paddedIndex = (index + 1).toString().padStart(2, '0'); // 至少两位
+        node.name = `️🇺🇳 未知 【YoungYannick】${paddedIndex}`;
+    });
+
+    // 将未知节点追加到末尾
     result.push(...unknownNodes);
 
     // 修改原数组
