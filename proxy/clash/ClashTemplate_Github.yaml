@@ -92,7 +92,9 @@ proxy-groups:
     icon: https://raw.githubusercontent.com/YoungYannick/Repository/master/images/main/Cool/Cool-500.png
     use:
       - xxxxx_provider
-    proxies: null
+    proxies:
+      - DIRECT
+      - 自动选择
   - name: 自动选择
     type: url-test
     icon: https://raw.githubusercontent.com/YoungYannick/Repository/master/images/icons/Color/Auto.png
