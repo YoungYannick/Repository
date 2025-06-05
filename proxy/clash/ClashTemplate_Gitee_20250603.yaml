@@ -195,6 +195,7 @@ proxy-groups:
       - xxxxx_provider
     proxies:
       - 自动选择
+      - 手动切换
   - name: OpenAI
     type: select
     icon: https://gitee.com/YoungYannick/Repository/raw/master/images/icons/Color/ChatGPT.png
