@@ -1,17 +1,17 @@
 /**
  * ## 主要参数
  * - `in`：指定输入节点名的类型。默认自动检测，优先级：中文 -> 国旗 -> 英文全称 -> 英文缩写。
- *   - 可选值：
- *     - `zh` 或 `cn`：中文
- *     - `en` 或 `us`：英文缩写
- *     - `flag` 或 `gq`：国旗
- *     - `quan`：英文全称
+ * - 可选值：
+ * - `zh` 或 `cn`：中文
+ * - `en` 或 `us`：英文缩写
+ * - `flag` 或 `gq`：国旗
+ * - `quan`：英文全称
  * - `out`：指定输出节点名的格式。默认为 `cn`（中文）。
- *   - 可选值：
- *     - `cn` 或 `zh`：中文
- *     - `us` 或 `en`：英文缩写
- *     - `gq` 或 `flag`：国旗
- *     - `quan`：英文全称
+ * - 可选值：
+ * - `cn` 或 `zh`：中文
+ * - `us` 或 `en`：英文缩写
+ * - `gq` 或 `flag`：国旗
+ * - `quan`：英文全称
  * - `nm`：保留未匹配到的节点名。默认为 `true`（保留）。
  *
  * ## 分隔符参数
@@ -22,13 +22,18 @@
  * - `one`：清理只有一个节点的地区的 "01" 后缀。默认为 `false`（不清理）。
  * - `flag`：节点名前添加国旗。默认为 `true`（添加）。
  *
+ * ## 排序参数 【新增】
+ * - `order`：保留订阅内节点的原始顺序，不进行分组排序。默认为 `false`。
+ * - `true`: 保留原始顺序
+ * - `false`: 按名称分组排序
+ *
  * ## 前缀参数
  * - `name`：节点名前添加机场名称前缀。默认为空。
  * - `nf`：将 `name` 的前缀置于最前。默认为 `false`。
  *
  * ## 保留参数
  * - `blkey`：保留节点名中的自定义关键词，用 "+" 分隔，支持替换（如 `GPT>新名字`）。
- *   - 示例：`#blkey=iplc+GPT>新名字+NF`
+ * - 示例：`#blkey=iplc+GPT>新名字+NF`
  * - `blgd`：保留特定标识（如 "家宽"、"IPLC"）。默认为 `false`。
  * - `bl`：正则匹配保留倍率标识（如 "2x"、"3倍"）。默认为 `false`。
  * - `nx`：保留 1 倍率及不显示倍率的节点。默认为 `false`。
@@ -39,6 +44,7 @@
  *
  * ## 默认行为
  * 当不提供任何参数时，脚本的行为如下：
+ * - 按名称分组排序
  * - 自动检测输入节点名类型（优先级：中文 -> 国旗 -> 英文全称 -> 英文缩写）
  * - 输出节点名格式为中文
  * - 保留未匹配到的节点名
@@ -56,15 +62,16 @@
  * - 不控制 QUIC 阻止
  *
  * ## 使用示例
- * 1. 默认行为：
- *    - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js`
- *    - 输出：自动检测输入类型，输出中文，添加国旗，保留未匹配节点，清理乱七八糟的名称
- * 2. 指定输入为国旗，输出为英文缩写：
- *    - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#in=flag&out=en`
- * 3. 不保留未匹配节点并添加机场名称前缀：
- *    - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#nm=false&name=机场名`
- * 4. 保留自定义关键词并替换：
- *    - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#blkey=GPT>新名字+NF`
+ * 1. 默认行为（自动排序）：
+ * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js`
+ * 2. 保留原始顺序：
+ * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#order=true`
+ * 3. 指定输入为国旗，输出为英文缩写：
+ * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#in=flag&out=en`
+ * 4. 不保留未匹配节点并添加机场名称前缀：
+ * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#nm=false&name=机场名`
+ * 5. 保留自定义关键词并替换：
+ * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#blkey=GPT>新名字+NF`
  */
 
 const inArg = $arguments;
@@ -77,6 +84,7 @@ const nx = inArg.nx || false,
     blnx = inArg.blnx || false,
     numone = inArg.one || false,
     debug = inArg.debug || false,
+    keepOrder = inArg.order || false, // 【新增】读取 order 参数
     clear = inArg.clear !== undefined ? inArg.clear : true, // 默认清理乱七八糟的名称
     addflag = inArg.flag !== undefined ? inArg.flag : true,
     nm = inArg.nm !== undefined ? inArg.nm : true; // 默认保留未匹配到的节点名
@@ -302,20 +310,25 @@ function operator(pro) {
             e.name = keyover.join(FGF);
         } else {
             if (nm) {
-                const matchNum = e.name.match(/\d+$/); // 提取末尾数字
-                const num = matchNum ? matchNum[0] : "01"; // 默认 "01"
+                const matchNum = e.name.match(/\d+$/);
+                const num = matchNum ? matchNum[0] : "01";
                 // e.name = '️🇺🇳 未知 【YoungYannick】'+ num;
                 e.name = '️🇺🇳 未知'+ num;
-                e.isUnknown = true; // 添加标识，表示这是未匹配节点
+                e.isUnknown = true;
             } else {
                 e.name = null;
             }
         }
     });
     pro = pro.filter((e) => e.name !== null);
-    jxh(pro);
-    numone && oneP(pro);
-    blpx && (pro = fampx(pro));
+
+    // 【修改】只有当 keepOrder 为 false (默认) 时，才执行排序逻辑
+    if (!keepOrder) {
+        jxh(pro);
+        numone && oneP(pro);
+        blpx && (pro = fampx(pro));
+    }
+
     key && (pro = pro.filter((e) => !keyb.test(e.name)));
     return pro;
 }
@@ -324,13 +337,11 @@ function operator(pro) {
 function getList(arg) { switch (arg) { case 'us': return EN; case 'gq': return FG; case 'quan': return QC; default: return ZH; } }
 // prettier-ignore
 function jxh(e) {
-    // 分离已知和未知节点
     const knownNodes = e.filter(node => !node.isUnknown);
     const unknownNodes = e.filter(node => node.isUnknown);
 
-    // 对已知节点进行原有分组和排序
     const grouped = knownNodes.reduce((acc, node) => {
-        const baseName = node.name.replace(/\d+$/, '').trim(); // 去掉末尾数字
+        const baseName = node.name.replace(/\d+$/, '').trim();
         if (!acc[baseName]) {
             acc[baseName] = [];
         }
@@ -357,24 +368,16 @@ function jxh(e) {
         });
     }
 
-    // 对已知节点排序
     result.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-    // 对未知节点重新编号，确保唯一性
     unknownNodes.forEach((node, index) => {
-        const paddedIndex = (index + 1).toString().padStart(2, '0'); // 至少两位
-        node.name = `️🇺🇳 未知 【YoungYannick】 ${paddedIndex}`;
+        const paddedIndex = (index + 1).toString().padStart(2, '0');
+        node.name = `️🇺🇳 未知 ${paddedIndex}`;
     });
 
-    // 将未知节点追加到末尾
     result.push(...unknownNodes);
-
-    // 修改原数组
     e.splice(0, e.length, ...result);
-
-    // 清理临时标识
     e.forEach(node => delete node.isUnknown);
-
     return e;
 }
 // prettier-ignore
