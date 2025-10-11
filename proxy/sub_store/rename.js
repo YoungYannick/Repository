@@ -323,9 +323,11 @@ function operator(pro) {
     pro = pro.filter((e) => e.name !== null);
 
     // 【修改】只有当 keepOrder 为 false (默认) 时，才执行排序逻辑
-    jxh(pro);
-    numone && oneP(pro);
-    if (!keepOrder && blpx) pro = fampx(pro);
+    if (!keepOrder) {
+        jxh(pro);
+        numone && oneP(pro);
+        blpx && (pro = fampx(pro));
+    }
 
     key && (pro = pro.filter((e) => !keyb.test(e.name)));
     return pro;
