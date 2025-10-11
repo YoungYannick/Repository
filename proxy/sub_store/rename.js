@@ -322,12 +322,13 @@ function operator(pro) {
     });
     pro = pro.filter((e) => e.name !== null);
 
-    // 【修改】只有当 keepOrder 为 false (默认) 时，才执行排序逻辑
-    if (!keepOrder) {
+    if (keepOrder) {
+        add_sequence_in_order(pro);
+    } else {
         jxh(pro);
-        numone && oneP(pro);
         blpx && (pro = fampx(pro));
     }
+    numone && oneP(pro);
 
     key && (pro = pro.filter((e) => !keyb.test(e.name)));
     return pro;
@@ -380,6 +381,50 @@ function jxh(e) {
     e.forEach(node => delete node.isUnknown);
     return e;
 }
+
+function add_sequence_in_order(pro) {
+    const knownNodes = pro.filter(node => !node.isUnknown);
+    const unknownNodes = pro.filter(node => node.isUnknown);
+
+    const groups = knownNodes.reduce((acc, node) => {
+        // 使用与jxh相同的逻辑获取基础名称
+        const baseName = node.name.replace(/\d+$/, '').trim();
+        if (!acc[baseName]) {
+            acc[baseName] = [];
+        }
+        acc[baseName].push(node);
+        return acc;
+    }, {});
+
+    const paddingMap = {};
+    for (const baseName in groups) {
+        const count = groups[baseName].length;
+        paddingMap[baseName] = Math.max(count.toString().length, 2);
+    }
+
+    const counters = {};
+    knownNodes.forEach(node => {
+        const baseName = node.name.replace(/\d+$/, '').trim();
+        // 递增当前基础名称的计数器
+        counters[baseName] = (counters[baseName] || 0) + 1;
+        const index = counters[baseName];
+
+        const padLength = paddingMap[baseName];
+        const paddedIndex = index.toString().padStart(padLength, '0');
+
+        node.name = `${baseName}${XHFGF}${paddedIndex}`;
+    });
+
+    unknownNodes.forEach((node, index) => {
+        const paddedIndex = (index + 1).toString().padStart(2, '0');
+        node.name = `️🇺🇳 未知 ${paddedIndex}`;
+    });
+    pro.forEach(node => delete node.isUnknown);
+
+    return pro;
+}
+
+
 // prettier-ignore
 function oneP(e) { const t = e.reduce((e, t) => { const n = t.name.replace(/[^A-Za-z0-9\u00C0-\u017F\u4E00-\u9FFF]+\d+$/, ""); if (!e[n]) { e[n] = []; } e[n].push(t); return e; }, {}); for (const e in t) { if (t[e].length === 1 && t[e][0].name.endsWith("01")) { t[e][0].name = t[e][0].name.replace(/[^.]01/, ""); } } return e; }
 // prettier-ignore
