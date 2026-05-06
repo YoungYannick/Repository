@@ -1,46 +1,49 @@
 /**
  * ## 主要参数
- * - `in`：指定输入节点名的类型。默认自动检测，优先级：中文 -> 国旗 -> 英文全称 -> 英文缩写。
+ * - `in`：指定输入节点名的类型默认自动检测，优先级：中文 -> 国旗 -> 英文全称 -> 英文缩写
  * - 可选值：
  * - `zh` 或 `cn`：中文
  * - `en` 或 `us`：英文缩写
  * - `flag` 或 `gq`：国旗
  * - `quan`：英文全称
- * - `out`：指定输出节点名的格式。默认为 `cn`（中文）。
+ * - `out`：指定输出节点名的格式默认为 `cn`（中文）
  * - 可选值：
  * - `cn` 或 `zh`：中文
  * - `us` 或 `en`：英文缩写
  * - `gq` 或 `flag`：国旗
  * - `quan`：英文全称
- * - `nm`：保留未匹配到的节点名。默认为 `true`（保留）。
+ * - `nm`：保留未匹配到的节点名默认为 `true`（保留）
  *
  * ## 分隔符参数
- * - `fgf`：节点名前缀或国旗分隔符。默认为空格。
- * - `sn`：国家与序号间的分隔符。默认为空格。
+ * - `fgf`：节点名前缀或国旗分隔符，默认为空格
+ * - `sn`：国家与序号间的分隔符，默认为空格
  *
  * ## 序号参数
- * - `one`：清理只有一个节点的地区的 "01" 后缀。默认为 `false`（不清理）。
- * - `flag`：节点名前添加国旗。默认为 `true`（添加）。
+ * - `one`：清理只有一个节点的地区的 "01" 后缀，默认为 `false`（不清理）
+ * - `flag`：节点名前添加国旗，默认为 `true`（添加）
  *
  * ## 排序参数 【新增】
- * - `order`：保留订阅内节点的原始顺序，不进行分组排序。默认为 `false`。
+ * - `order`：保留订阅内节点的原始顺序，不进行分组排序，默认为 `false`
  * - `true`: 保留原始顺序
  * - `false`: 按名称分组排序
  *
  * ## 前缀参数
- * - `name`：节点名前添加机场名称前缀。默认为空。
- * - `nf`：将 `name` 的前缀置于最前。默认为 `false`。
+ * - `name`：节点名前添加机场名称前缀，默认为空
+ * - `nf`：将 `name` 的前缀置于最前，默认为 `false`
+ *
+ *  * ## 节点修改参数 【新增】
+ *  * - `address`：替换所有节点的服务器地址（address），默认为空（不替换）
  *
  * ## 保留参数
- * - `blkey`：保留节点名中的自定义关键词，用 "+" 分隔，支持替换（如 `GPT>新名字`）。
+ * - `blkey`：保留节点名中的自定义关键词，用 "+" 分隔，支持替换（如 `GPT>新名字`）
  * - 示例：`#blkey=iplc+GPT>新名字+NF`
- * - `blgd`：保留特定标识（如 "家宽"、"IPLC"）。默认为 `false`。
- * - `bl`：正则匹配保留倍率标识（如 "2x"、"3倍"）。默认为 `false`。
- * - `nx`：保留 1 倍率及不显示倍率的节点。默认为 `false`。
- * - `blnx`：仅保留高倍率节点（大于 1 倍）。默认为 `false`。
- * - `clear`：清理乱七八糟的名称（如含 "套餐"、"到期"）。默认为 `true`（清理）。
- * - `blpx`：对 `bl` 保留的标识后的名称分组排序（需与 `bl` 配合）。默认为 `false`。
- * - `blockquic`：控制 QUIC 阻止，`on` 表示阻止，`off` 表示不阻止。默认为不设置。
+ * - `blgd`：保留特定标识（如 "家宽"、"IPLC"），默认为 `false`
+ * - `bl`：正则匹配保留倍率标识（如 "2x"、"3倍"），默认为 `false`
+ * - `nx`：保留 1 倍率及不显示倍率的节点，默认为 `false`
+ * - `blnx`：仅保留高倍率节点（大于 1 倍），默认为 `false`
+ * - `clear`：清理乱七八糟的名称（如含 "套餐"、"到期"），默认为 `true`（清理）
+ * - `blpx`：对 `bl` 保留的标识后的名称分组排序（需与 `bl` 配合），默认为 `false`
+ * - `blockquic`：控制 QUIC 阻止，`on` 表示阻止，`off` 表示不阻止，默认为不设置
  *
  * ## 默认行为
  * 当不提供任何参数时，脚本的行为如下：
@@ -94,6 +97,7 @@ const FGF = inArg.fgf == undefined ? " " : decodeURI(inArg.fgf),
     FNAME = inArg.name == undefined ? "" : decodeURI(inArg.name),
     BLKEY = inArg.blkey == undefined ? "" : decodeURI(inArg.blkey),
     blockquic = inArg.blockquic == undefined ? "" : decodeURI(inArg.blockquic),
+    NEW_ADDRESS = inArg.address == undefined ? "" : decodeURI(inArg.address),
     nameMap = {
         cn: "cn",
         zh: "cn",
@@ -207,6 +211,10 @@ function operator(pro) {
     const BLKEYS = BLKEY ? BLKEY.split("+") : "";
 
     pro.forEach((e) => {
+        if (NEW_ADDRESS !== "") {
+            e.server = NEW_ADDRESS;
+            if (e.address !== undefined) e.address = NEW_ADDRESS;
+        }
         let bktf = false, ens = e.name;
         Object.keys(rurekey).forEach((ikey) => {
             if (rurekey[ikey].test(e.name)) {
