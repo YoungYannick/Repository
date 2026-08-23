@@ -1,96 +1,114 @@
 /**
- * ## 主要参数
- * - `in`：指定输入节点名的类型默认自动检测，优先级：中文 -> 国旗 -> 英文全称 -> 英文缩写
- * - 可选值：
- * - `zh` 或 `cn`：中文
- * - `en` 或 `us`：英文缩写
- * - `flag` 或 `gq`：国旗
- * - `quan`：英文全称
- * - `out`：指定输出节点名的格式默认为 `cn`（中文）
- * - 可选值：
- * - `cn` 或 `zh`：中文
- * - `us` 或 `en`：英文缩写
- * - `gq` 或 `flag`：国旗
- * - `quan`：英文全称
- * - `nm`：保留未匹配到的节点名默认为 `true`（保留）
+ * Sub-Store 节点重命名脚本
  *
- * ## 分隔符参数
- * - `fgf`：节点名前缀或国旗分隔符，默认为空格
- * - `sn`：国家与序号间的分隔符，默认为空格
+ * 使用方式：把脚本添加为 Sub-Store 的「脚本操作」，参数写在脚本 URL 的 `#` 后面
+ * 多个参数使用 `&` 连接，例如：`<脚本URL>#out=en&flag=false&order=true`
  *
- * ## 序号参数
- * - `one`：清理只有一个节点的地区的 "01" 后缀，默认为 `false`（不清理）
- * - `flag`：节点名前添加国旗，默认为 `true`（添加）
+ * 一、国家/地区识别与输出
  *
- * ## 排序参数 【新增】
- * - `order`：保留订阅内节点的原始顺序，不进行分组排序，默认为 `false`
- * - `true`: 保留原始顺序
- * - `false`: 按名称分组排序
+ * - `in`：指定原节点名采用的国家标识类型；不填写时自动识别
+ *   自动识别优先级：中文名称 -> 国旗 -> 英文全称 -> 英文国家码
+ *   同类名称按最长内容优先匹配，例如「印度尼西亚」不会误判为「印度」
+ *   - `cn` / `zh`：中文名称，例如「香港」「印度尼西亚」
+ *   - `gq` / `flag`：国旗，例如「🇭🇰」「🇮🇩」
+ *   - `quan`：英文全称，例如「Hong Kong」「Indonesia」
+ *   - `us` / `en`：英文国家码，例如「HK」「ID」
  *
- * ## 前缀参数
- * - `name`：节点名前添加机场名称前缀，默认为空
- * - `nf`：将 `name` 的前缀置于最前，默认为 `false`
+ * - `out`：输出国家标识类型，默认 `cn`
+ *   可选值与 `in` 相同：`cn` / `zh`、`gq` / `flag`、`quan`、`us` / `en`
  *
- *  * ## 节点修改参数 【新增】
- *  * - `address`：替换所有节点的服务器地址（address），默认为空（不替换）
+ * - `flag`：是否在输出名称前添加国旗，默认 `true`
+ * - `nm`：是否保留无法识别国家的节点，默认 `true`
+ *   保留时统一命名为「🇺🇳 未知 01」；设为 `false` 时删除这些节点
  *
- * ## 保留参数
- * - `blkey`：保留节点名中的自定义关键词，用 "+" 分隔，支持替换（如 `GPT>新名字`）
- * - 示例：`#blkey=iplc+GPT>新名字+NF`
- * - `blgd`：保留特定标识（如 "家宽"、"IPLC"），默认为 `false`
- * - `bl`：正则匹配保留倍率标识（如 "2x"、"3倍"），默认为 `false`
- * - `nx`：保留 1 倍率及不显示倍率的节点，默认为 `false`
- * - `blnx`：仅保留高倍率节点（大于 1 倍），默认为 `false`
- * - `clear`：清理乱七八糟的名称（如含 "套餐"、"到期"），默认为 `true`（清理）
- * - `blpx`：对 `bl` 保留的标识后的名称分组排序（需与 `bl` 配合），默认为 `false`
- * - `blockquic`：控制 QUIC 阻止，`on` 表示阻止，`off` 表示不阻止，默认为不设置
+ * 二、名称、分隔符与序号
  *
- * ## 默认行为
- * 当不提供任何参数时，脚本的行为如下：
- * - 按名称分组排序
- * - 自动检测输入节点名类型（优先级：中文 -> 国旗 -> 英文全称 -> 英文缩写）
- * - 输出节点名格式为中文
- * - 保留未匹配到的节点名
- * - 分隔符为默认值（空格）
- * - 不清理 "01" 后缀
- * - 节点名前添加国旗
- * - 不添加机场名称前缀
- * - 不保留自定义关键词
- * - 不保留特定标识
- * - 不保留倍率标识
- * - 不保留 1 倍率及不显示倍率的节点
- * - 不仅保留高倍率节点（即不过滤）
- * - 清理乱七八糟的名称
- * - 不对保留的标识后的名称分组排序
- * - 不控制 QUIC 阻止
+ * - `name`：给节点添加自定义名称/机场名称前缀，默认不添加
+ * - `nf`：自定义名称的位置，默认 `false`
+ *   - `false`：国旗在前，例如「🇭🇰 机场名 香港 01」
+ *   - `true`：自定义名称在最前，例如「机场名 🇭🇰 香港 01」
+ * - `fgf`：名称各部分之间的分隔符，默认一个空格
+ * - `sn`：国家名称与序号之间的分隔符，默认一个空格
+ * - `one`：某地区只有一个节点时，是否移除末尾的 `01`，默认 `false`
  *
- * ## 使用示例
- * 1. 默认行为（自动排序）：
- * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js`
- * 2. 保留原始顺序：
- * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#order=true`
- * 3. 指定输入为国旗，输出为英文缩写：
- * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#in=flag&out=en`
- * 4. 不保留未匹配节点并添加机场名称前缀：
- * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#nm=false&name=机场名`
- * 5. 保留自定义关键词并替换：
- * - `https://raw.githubusercontent.com/YoungYannick/Repository/master/proxy/sub_store/rename.js#blkey=GPT>新名字+NF`
+ * 三、排序
+ *
+ * - `order`：是否保留订阅中的原始节点顺序，默认 `false`
+ *   - `false`：按重命名后的国家/标识分组排序并编号
+ *   - `true`：保留原始顺序，只在各分组内依次编号
+ * - `blpx`：把带倍率或专线标识的节点排到普通节点之后，默认 `false`；通常配合 `bl` 使用
+ *
+ * 四、倍率、线路标识与名称清理
+ *
+ * - `bl`：在新名称中保留倍率，例如 `2x`、`3倍`、`×5` 会统一显示为 `2×`、`3×`、`5×`
+ * - `blgd`：保留常见线路标识，例如 IPLC、IEPL、家宽、游戏、GPT、UDP，默认 `false`
+ * - `nx`：只保留无倍率或倍率等于 1 的节点，默认 `false`
+ * - `blnx`：只保留「高倍」或倍率大于 1 的节点，默认 `false`
+ * - `clear`：过滤名称中含「套餐、到期、剩余、流量、官网、订阅」等信息节点，默认 `true`
+ * - `blkey`：保留自定义关键词，多个关键词用 `+` 分隔；使用 `原词>新词` 可替换显示内容
+ *   示例：`blkey=IPLC+GPT>AI+家宽`
+ * - `key`：旧版特殊节点筛选规则，仅为兼容保留；不了解规则时请勿开启
+ *
+ * 五、节点属性
+ *
+ * - `address`：把所有节点的服务器地址替换为指定地址，默认不修改
+ * - `blockquic`：设置节点的 `block-quic` 属性
+ *   - `on`：设置为 `on`
+ *   - `off`：设置为 `off`
+ *   - 不填写：移除该属性
+ *
+ * 六、布尔参数写法
+ *
+ * 布尔参数支持 `true/false`、`1/0`、`on/off`、`yes/no`，不区分大小写
+ *
+ * 七、常用示例
+ *
+ * 1. 默认：自动识别国家，输出「国旗 + 中文名称 + 序号」并分组排序
+ *    `<脚本URL>`
+ *
+ * 2. 保留原始顺序，关闭国旗，输出英文国家码
+ *    `<脚本URL>#order=true&flag=false&out=en`
+ *
+ * 3. 已知原节点使用国旗，输出英文全称
+ *    `<脚本URL>#in=flag&out=quan`
+ *
+ * 4. 添加机场名前缀，并删除无法识别国家的节点
+ *    `<脚本URL>#name=机场名&nf=true&nm=false`
+ *
+ * 5. 保留倍率、线路标识和自定义关键词
+ *    `<脚本URL>#bl=true&blgd=true&blkey=IPLC+GPT>AI+家宽`
+ *
+ * 6. 仅保留无倍率/1 倍节点，同时关闭默认的信息节点清理
+ *    `<脚本URL>#nx=true&clear=false`
  */
 
 const inArg = $arguments;
-const nx = inArg.nx || false,
-    bl = inArg.bl || false,
-    nf = inArg.nf || false,
-    key = inArg.key || false,
-    blgd = inArg.blgd || false,
-    blpx = inArg.blpx || false,
-    blnx = inArg.blnx || false,
-    numone = inArg.one || false,
-    debug = inArg.debug || false,
-    keepOrder = inArg.order || false, // 【新增】读取 order 参数
-    clear = inArg.clear !== undefined ? inArg.clear : true, // 默认清理乱七八糟的名称
-    addflag = inArg.flag !== undefined ? inArg.flag : true,
-    nm = inArg.nm !== undefined ? inArg.nm : true; // 默认保留未匹配到的节点名
+
+// Sub-Store 的 URL 参数在不同版本/调用方式下可能是布尔值，也可能是字符串
+// 直接使用 `value || false` 会把字符串 "false" 当成 true
+function booleanArg(value, defaultValue = false) {
+    if (value === undefined || value === null || value === "") return defaultValue;
+    if (typeof value === "boolean") return value;
+    if (typeof value === "number") return value !== 0;
+    const normalized = String(value).trim().toLowerCase();
+    if (["false", "0", "off", "no"].includes(normalized)) return false;
+    if (["true", "1", "on", "yes"].includes(normalized)) return true;
+    return defaultValue;
+}
+
+const nx = booleanArg(inArg.nx),
+    bl = booleanArg(inArg.bl),
+    nf = booleanArg(inArg.nf),
+    key = booleanArg(inArg.key),
+    blgd = booleanArg(inArg.blgd),
+    blpx = booleanArg(inArg.blpx),
+    blnx = booleanArg(inArg.blnx),
+    numone = booleanArg(inArg.one),
+    debug = booleanArg(inArg.debug),
+    keepOrder = booleanArg(inArg.order),
+    clear = booleanArg(inArg.clear, true),
+    addflag = booleanArg(inArg.flag, true),
+    nm = booleanArg(inArg.nm, true);
 
 const FGF = inArg.fgf == undefined ? " " : decodeURI(inArg.fgf),
     XHFGF = inArg.sn == undefined ? " " : decodeURI(inArg.sn),
@@ -111,13 +129,122 @@ const FGF = inArg.fgf == undefined ? " " : decodeURI(inArg.fgf),
     outputName = nameMap[inArg.out] || "cn";
 
 // prettier-ignore
-const FG = ['🇨🇳', '🇭🇰', '🇲🇴', '🇹🇼', '🇯🇵', '🇰🇷', '🇸🇬', '🇺🇸', '🇬🇧', '🇫🇷', '🇩🇪', '🇦🇺', '🇦🇪', '🇦🇫', '🇦🇱', '🇩🇿', '🇦🇴', '🇦🇷', '🇦🇲', '🇦🇹', '🇦🇿', '🇧🇭', '🇧🇩', '🇧🇾', '🇧🇪', '🇧🇿', '🇧🇯', '🇧🇹', '🇧🇴', '🇧🇦', '🇧🇼', '🇧🇷', '🇻🇬', '🇧🇳', '🇧🇬', '🇧🇫', '🇧🇮', '🇰🇭', '🇨🇲', '🇨🇦', '🇨🇻', '🇰🇾', '🇨🇫', '🇹🇩', '🇨🇱', '🇨🇴', '🇰🇲', '🇨🇬', '🇨🇩', '🇨🇷', '🇭🇷', '🇨🇾', '🇨🇿', '🇩🇰', '🇩🇯', '🇩🇴', '🇪🇨', '🇪🇬', '🇸🇻', '🇬🇶', '🇪🇷', '🇪🇪', '🇪🇹', '🇫🇯', '🇫🇮', '🇬🇦', '🇬🇲', '🇬🇪', '🇬🇭', '🇬🇷', '🇬🇱', '🇬🇹', '🇬🇳', '🇬🇾', '🇭🇹', '🇭🇳', '🇭🇺', '🇮🇸', '🇮🇳', '🇮🇩', '🇮🇷', '🇮🇶', '🇮🇪', '🇮🇲', '🇮🇱', '🇮🇹', '🇨🇮', '🇯🇲', '🇯🇴', '🇰🇿', '🇰🇪', '🇰🇼', '🇰🇬', '🇱🇪', '🇱🇻', '🇱🇧', '🇱🇸', '🇱🇷', '🇱🇾', '🇱🇹', '🇱🇺', '🇲🇰', '🇲🇬', '🇲🇼', '🇲🇾', '🇲🇻', '🇲🇱', '🇲🇹', '🇲🇷', '🇲🇺', '🇲🇽', '🇲🇩', '🇲🇨', '🇲🇳', '🇲🇪', '🇲🇦', '🇲🇿', '🇲🇲', '🇳🇦', '🇳🇵', '🇳🇱', '🇳🇿', '🇳🇮', '🇳🇪', '🇳🇬', '🇰🇵', '🇳🇴', '🇴🇲', '🇵🇰', '🇵🇦', '🇵🇾', '🇵🇪', '🇵🇭', '🇵🇹', '🇵🇷', '🇶🇦', '🇷🇴', '🇷🇺', '🇷🇼', '🇸🇲', '🇸🇦', '🇸🇳', '🇷🇸', '🇸🇱', '🇸🇰', '🇸🇮', '🇸🇴', '🇿🇦', '🇪🇸', '🇱🇰', '🇸🇩', '🇸🇷', '🇸🇿', '🇸🇪', '🇨🇭', '🇸🇾', '🇹🇯', '🇹🇿', '🇹🇭', '🇹🇬', '🇹🇴', '🇹🇹', '🇹🇳', '🇹🇷', '🇹🇲', '🇻🇮', '🇺🇬', '🇺🇦', '🇺🇾', '🇺🇿', '🇻🇪', '🇻🇳', '🇾🇪', '🇿🇲', '🇿🇼', '🇦🇩', '🇷🇪', '🇵🇱', '🇬🇺', '🇻🇦', '🇱🇮', '🇨🇼', '🇸🇨', '🇦🇶', '🇬🇮', '🇨🇺', '🇫🇴', '🇦🇽', '🇧🇲', '🇹🇱'];
+const FG = ['🇨🇳', '🇭🇰', '🇲🇴', '🇹🇼', '🇯🇵', '🇰🇷', '🇸🇬', '🇺🇸', '🇬🇧', '🇫🇷', '🇩🇪', '🇦🇺', '🇦🇪', '🇦🇫', '🇦🇱', '🇩🇿', '🇦🇴', '🇦🇷', '🇦🇲', '🇦🇹', '🇦🇿', '🇧🇭', '🇧🇩', '🇧🇾', '🇧🇪', '🇧🇿', '🇧🇯', '🇧🇹', '🇧🇴', '🇧🇦', '🇧🇼', '🇧🇷', '🇻🇬', '🇧🇳', '🇧🇬', '🇧🇫', '🇧🇮', '🇰🇭', '🇨🇲', '🇨🇦', '🇨🇻', '🇰🇾', '🇨🇫', '🇹🇩', '🇨🇱', '🇨🇴', '🇰🇲', '🇨🇬', '🇨🇩', '🇨🇷', '🇭🇷', '🇨🇾', '🇨🇿', '🇩🇰', '🇩🇯', '🇩🇴', '🇪🇨', '🇪🇬', '🇸🇻', '🇬🇶', '🇪🇷', '🇪🇪', '🇪🇹', '🇫🇯', '🇫🇮', '🇬🇦', '🇬🇲', '🇬🇪', '🇬🇭', '🇬🇷', '🇬🇱', '🇬🇹', '🇬🇳', '🇬🇾', '🇭🇹', '🇭🇳', '🇭🇺', '🇮🇸', '🇮🇳', '🇮🇩', '🇮🇷', '🇮🇶', '🇮🇪', '🇮🇲', '🇮🇱', '🇮🇹', '🇨🇮', '🇯🇲', '🇯🇴', '🇰🇿', '🇰🇪', '🇰🇼', '🇰🇬', '🇱🇦', '🇱🇻', '🇱🇧', '🇱🇸', '🇱🇷', '🇱🇾', '🇱🇹', '🇱🇺', '🇲🇰', '🇲🇬', '🇲🇼', '🇲🇾', '🇲🇻', '🇲🇱', '🇲🇹', '🇲🇷', '🇲🇺', '🇲🇽', '🇲🇩', '🇲🇨', '🇲🇳', '🇲🇪', '🇲🇦', '🇲🇿', '🇲🇲', '🇳🇦', '🇳🇵', '🇳🇱', '🇳🇿', '🇳🇮', '🇳🇪', '🇳🇬', '🇰🇵', '🇳🇴', '🇴🇲', '🇵🇰', '🇵🇦', '🇵🇾', '🇵🇪', '🇵🇭', '🇵🇹', '🇵🇷', '🇶🇦', '🇷🇴', '🇷🇺', '🇷🇼', '🇸🇲', '🇸🇦', '🇸🇳', '🇷🇸', '🇸🇱', '🇸🇰', '🇸🇮', '🇸🇴', '🇿🇦', '🇪🇸', '🇱🇰', '🇸🇩', '🇸🇷', '🇸🇿', '🇸🇪', '🇨🇭', '🇸🇾', '🇹🇯', '🇹🇿', '🇹🇭', '🇹🇬', '🇹🇴', '🇹🇹', '🇹🇳', '🇹🇷', '🇹🇲', '🇻🇮', '🇺🇬', '🇺🇦', '🇺🇾', '🇺🇿', '🇻🇪', '🇻🇳', '🇾🇪', '🇿🇲', '🇿🇼', '🇦🇩', '🇷🇪', '🇵🇱', '🇬🇺', '🇻🇦', '🇱🇮', '🇨🇼', '🇸🇨', '🇦🇶', '🇬🇮', '🇨🇺', '🇫🇴', '🇦🇽', '🇧🇲', '🇹🇱'];
 // prettier-ignore
 const EN = ['CN', 'HK', 'MO', 'TW', 'JP', 'KR', 'SG', 'US', 'GB', 'FR', 'DE', 'AU', 'AE', 'AF', 'AL', 'DZ', 'AO', 'AR', 'AM', 'AT', 'AZ', 'BH', 'BD', 'BY', 'BE', 'BZ', 'BJ', 'BT', 'BO', 'BA', 'BW', 'BR', 'VG', 'BN', 'BG', 'BF', 'BI', 'KH', 'CM', 'CA', 'CV', 'KY', 'CF', 'TD', 'CL', 'CO', 'KM', 'CG', 'CD', 'CR', 'HR', 'CY', 'CZ', 'DK', 'DJ', 'DO', 'EC', 'EG', 'SV', 'GQ', 'ER', 'EE', 'ET', 'FJ', 'FI', 'GA', 'GM', 'GE', 'GH', 'GR', 'GL', 'GT', 'GN', 'GY', 'HT', 'HN', 'HU', 'IS', 'IN', 'ID', 'IR', 'IQ', 'IE', 'IM', 'IL', 'IT', 'CI', 'JM', 'JO', 'KZ', 'KE', 'KW', 'KG', 'LA', 'LV', 'LB', 'LS', 'LR', 'LY', 'LT', 'LU', 'MK', 'MG', 'MW', 'MY', 'MV', 'ML', 'MT', 'MR', 'MU', 'MX', 'MD', 'MC', 'MN', 'ME', 'MA', 'MZ', 'MM', 'NA', 'NP', 'NL', 'NZ', 'NI', 'NE', 'NG', 'KP', 'NO', 'OM', 'PK', 'PA', 'PY', 'PE', 'PH', 'PT', 'PR', 'QA', 'RO', 'RU', 'RW', 'SM', 'SA', 'SN', 'RS', 'SL', 'SK', 'SI', 'SO', 'ZA', 'ES', 'LK', 'SD', 'SR', 'SZ', 'SE', 'CH', 'SY', 'TJ', 'TZ', 'TH', 'TG', 'TO', 'TT', 'TN', 'TR', 'TM', 'VI', 'UG', 'UA', 'UY', 'UZ', 'VE', 'VN', 'YE', 'ZM', 'ZW', 'AD', 'RE', 'PL', 'GU', 'VA', 'LI', 'CW', 'SC', 'AQ', 'GI', 'CU', 'FO', 'AX', 'BM', 'TL'];
 // prettier-ignore
 const ZH = ['中国', '香港', '澳门', '台湾', '日本', '韩国', '新加坡', '美国', '英国', '法国', '德国', '澳大利亚', '阿联酋', '阿富汗', '阿尔巴尼亚', '阿尔及利亚', '安哥拉', '阿根廷', '亚美尼亚', '奥地利', '阿塞拜疆', '巴林', '孟加拉国', '白俄罗斯', '比利时', '伯利兹', '贝宁', '不丹', '玻利维亚', '波斯尼亚和黑塞哥维那', '博茨瓦纳', '巴西', '英属维京群岛', '文莱', '保加利亚', '布基纳法索', '布隆迪', '柬埔寨', '喀麦隆', '加拿大', '佛得角', '开曼群岛', '中非共和国', '乍得', '智利', '哥伦比亚', '科摩罗', '刚果(布)', '刚果(金)', '哥斯达黎加', '克罗地亚', '塞浦路斯', '捷克', '丹麦', '吉布提', '多米尼加共和国', '厄瓜多尔', '埃及', '萨尔瓦多', '赤道几内亚', '厄立特里亚', '爱沙尼亚', '埃塞俄比亚', '斐济', '芬兰', '加蓬', '冈比亚', '格鲁吉亚', '加纳', '希腊', '格陵兰', '危地马拉', '几内亚', '圭亚那', '海地', '洪都拉斯', '匈牙利', '冰岛', '印度', '印尼', '伊朗', '伊拉克', '爱尔兰', '马恩岛', '以色列', '意大利', '科特迪瓦', '牙买加', '约旦', '哈萨克斯坦', '肯尼亚', '科威特', '吉尔吉斯斯坦', '老挝', '拉脱维亚', '黎巴嫩', '莱索托', '利比里亚', '利比亚', '立陶宛', '卢森堡', '马其顿', '马达加斯加', '马拉维', '马来', '马尔代夫', '马里', '马耳他', '毛利塔尼亚', '毛里求斯', '墨西哥', '摩尔多瓦', '摩纳哥', '蒙古', '黑山共和国', '摩洛哥', '莫桑比克', '缅甸', '纳米比亚', '尼泊尔', '荷兰', '新西兰', '尼加拉瓜', '尼日尔', '尼日利亚', '朝鲜', '挪威', '阿曼', '巴基斯坦', '巴拿马', '巴拉圭', '秘鲁', '菲律宾', '葡萄牙', '波多黎各', '卡塔尔', '罗马尼亚', '俄罗斯', '卢旺达', '圣马力诺', '沙特阿拉伯', '塞内加尔', '塞尔维亚', '塞拉利昂', '斯洛伐克', '斯洛文尼亚', '索马里', '南非', '西班牙', '斯里兰卡', '苏丹', '苏里南', '斯威士兰', '瑞典', '瑞士', '叙利亚', '塔吉克斯坦', '坦桑尼亚', '泰国', '多哥', '汤加', '特立尼达和多巴哥', '突尼斯', '土耳其', '土库曼斯坦', '美属维尔京群岛', '乌干达', '乌克兰', '乌拉圭', '乌兹别克斯坦', '委内瑞拉', '越南', '也门', '赞比亚', '津巴布韦', '安道尔', '留尼汪', '波兰', '关岛', '梵蒂冈', '列支敦士登', '库拉索', '塞舌尔', '南极', '直布罗陀', '古巴', '法罗群岛', '奥兰群岛', '百慕达', '东帝汶'];
 // prettier-ignore
 const QC = ['China', 'Hong Kong', 'Macao', 'Taiwan', 'Japan', 'Korea', 'Singapore', 'United States', 'United Kingdom', 'France', 'Germany', 'Australia', 'Dubai', 'Afghanistan', 'Albania', 'Algeria', 'Angola', 'Argentina', 'Armenia', 'Austria', 'Azerbaijan', 'Bahrain', 'Bangladesh', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'British Virgin Islands', 'Brunei', 'Bulgaria', 'Burkina-faso', 'Burundi', 'Cambodia', 'Cameroon', 'Canada', 'CapeVerde', 'CaymanIslands', 'Central African Republic', 'Chad', 'Chile', 'Colombia', 'Comoros', 'Congo-Brazzaville', 'Congo-Kinshasa', 'CostaRica', 'Croatia', 'Cyprus', 'Czech Republic', 'Denmark', 'Djibouti', 'Dominican Republic', 'Ecuador', 'Egypt', 'EISalvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Ethiopia', 'Fiji', 'Finland', 'Gabon', 'Gambia', 'Georgia', 'Ghana', 'Greece', 'Greenland', 'Guatemala', 'Guinea', 'Guyana', 'Haiti', 'Honduras', 'Hungary', 'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Isle of Man', 'Israel', 'Italy', 'Ivory Coast', 'Jamaica', 'Jordan', 'Kazakstan', 'Kenya', 'Kuwait', 'Kyrgyzstan', 'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Lithuania', 'Luxembourg', 'Macedonia', 'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Mauritania', 'Mauritius', 'Mexico', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar(Burma)', 'Namibia', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'NorthKorea', 'Norway', 'Oman', 'Pakistan', 'Panama', 'Paraguay', 'Peru', 'Philippines', 'Portugal', 'PuertoRico', 'Qatar', 'Romania', 'Russia', 'Rwanda', 'SanMarino', 'SaudiArabia', 'Senegal', 'Serbia', 'SierraLeone', 'Slovakia', 'Slovenia', 'Somalia', 'SouthAfrica', 'Spain', 'SriLanka', 'Sudan', 'Suriname', 'Swaziland', 'Sweden', 'Switzerland', 'Syria', 'Tajikstan', 'Tanzania', 'Thailand', 'Togo', 'Tonga', 'TrinidadandTobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'U.S.Virgin Islands', 'Uganda', 'Ukraine', 'Uruguay', 'Uzbekistan', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe', 'Andorra', 'Reunion', 'Poland', 'Guam', 'Vatican', 'Liechtensteins', 'Curacao', 'Seychelles', 'Antarctica', 'Gibraltar', 'Cuba', 'Faroe Islands', 'Ahvenanmaa', 'Bermuda', 'Timor-Leste'];
+
+// 常见正式名称、旧拼写和缩写。别名只负责定位国家，输出仍由 cn/us/gq/quan 决定
+const COUNTRY_ALIASES = {
+    cn: {
+        CN: ["中国大陆", "大陆"],
+        ID: ["印度尼西亚"],
+        MY: ["马来西亚"],
+        KR: ["南韩"],
+        KP: ["北韩"],
+        AE: ["阿拉伯联合酋长国"],
+        BA: ["波黑", "波黑共和国"],
+        CZ: ["捷克共和国"],
+        MK: ["北马其顿"],
+        SZ: ["斯威士兰", "斯威士兰王国"],
+    },
+    quan: {
+        GB: ["Great Britain"],
+        AE: ["United Arab Emirates"],
+        KR: ["South Korea", "Republic of Korea"],
+        KP: ["North Korea", "DPRK"],
+        CV: ["Cape Verde"],
+        KY: ["Cayman Islands"],
+        CR: ["Costa Rica"],
+        SV: ["El Salvador"],
+        KZ: ["Kazakhstan"],
+        MK: ["North Macedonia"],
+        MM: ["Myanmar", "Burma"],
+        PR: ["Puerto Rico"],
+        SM: ["San Marino"],
+        SA: ["Saudi Arabia"],
+        SL: ["Sierra Leone"],
+        ZA: ["South Africa"],
+        LK: ["Sri Lanka"],
+        TJ: ["Tajikistan"],
+        TT: ["Trinidad and Tobago"],
+        VI: ["U.S. Virgin Islands", "US Virgin Islands"],
+        LI: ["Liechtenstein"],
+        AX: ["Aland Islands", "Åland Islands"],
+        CI: ["Cote d'Ivoire", "Côte d’Ivoire"],
+        CZ: ["Czechia"],
+        SZ: ["Eswatini"],
+        RU: ["Russian Federation"],
+        VN: ["Viet Nam"],
+        LA: ["Lao PDR"],
+    },
+    us: {
+        GB: ["UK"],
+        AE: ["UAE"],
+    },
+};
+
+function getCountryIndex(code) {
+    return EN.indexOf(code);
+}
+
+function buildCountryMatchers(type) {
+    const list = getList(type);
+    const matchers = list.map((text, countryIndex) => ({ text, countryIndex }));
+    const aliases = COUNTRY_ALIASES[type] || {};
+    Object.keys(aliases).forEach((code) => {
+        const countryIndex = getCountryIndex(code);
+        if (countryIndex === -1) return;
+        aliases[code].forEach((text) => matchers.push({ text, countryIndex }));
+    });
+    return matchers.sort((a, b) => b.text.length - a.text.length);
+}
+
+function isLatinLetter(character) {
+    return character !== undefined && /[A-Za-z]/.test(character);
+}
+
+function containsCountryText(source, target, type, forceCodeInput) {
+    if (type === "cn" || type === "gq") return source.includes(target);
+
+    // 自动识别国家码时只接受大写，避免把 in/us/do 等普通英文片段当成国家
+    const caseSensitive = type === "us" && !forceCodeInput;
+    const haystack = caseSensitive ? source : source.toLowerCase();
+    const needle = caseSensitive ? target : target.toLowerCase();
+    let fromIndex = 0;
+
+    while (fromIndex <= haystack.length - needle.length) {
+        const index = haystack.indexOf(needle, fromIndex);
+        if (index === -1) return false;
+        const before = index > 0 ? source[index - 1] : undefined;
+        const afterIndex = index + target.length;
+        const after = afterIndex < source.length ? source[afterIndex] : undefined;
+        if (!isLatinLetter(before) && !isLatinLetter(after)) return true;
+        fromIndex = index + 1;
+    }
+    return false;
+}
+
+const COUNTRY_MATCHERS = {
+    cn: buildCountryMatchers("cn"),
+    gq: buildCountryMatchers("gq"),
+    quan: buildCountryMatchers("quan"),
+    us: buildCountryMatchers("us"),
+};
+
+function findCountryIndex(name) {
+    const types = inname ? [inname] : ["cn", "gq", "quan", "us"];
+    for (const type of types) {
+        const match = COUNTRY_MATCHERS[type].find(({ text }) =>
+            containsCountryText(name, text, type, inname === "us")
+        );
+        if (match) return match.countryIndex;
+    }
+    return -1;
+}
 
 const specialRegex = [
     /(\d\.)?\d+×/,
@@ -129,22 +256,39 @@ const nameclear =
 const regexArray = [/ˣ²/, /ˣ³/, /ˣ⁴/, /ˣ⁵/, /ˣ⁶/, /ˣ⁷/, /ˣ⁸/, /ˣ⁹/, /ˣ¹⁰/, /ˣ²⁰/, /ˣ³⁰/, /ˣ⁴⁰/, /ˣ⁵⁰/, /IPLC/i, /IEPL/i, /核心/, /边缘/, /高级/, /标准/, /实验/, /商宽/, /家宽/, /游戏|game/i, /购物/, /专线/, /LB/, /cloudflare/i, /\budp\b/i, /\bgpt\b/i, /udpn\b/];
 // prettier-ignore
 const valueArray = ["2×", "3×", "4×", "5×", "6×", "7×", "8×", "9×", "10×", "20×", "30×", "40×", "50×", "IPLC", "IEPL", "Kern", "Edge", "Pro", "Std", "Exp", "Biz", "Fam", "Game", "Buy", "Zx", "LB", "CF", "UDP", "GPT", "UDPN"];
-const nameblnx = /(高倍|(?!1)2+(x|倍)|ˣ²|ˣ³|ˣ⁴|ˣ⁵|ˣ¹⁰)/i;
-const namenx = /(高倍|(?!1)(0\.|\d)+(x|倍)|ˣ²|ˣ³|ˣ⁴|ˣ⁵|ˣ¹⁰)/i;
+const SUPERSCRIPT_MULTIPLIERS = {
+    "ˣ²": 2, "ˣ³": 3, "ˣ⁴": 4, "ˣ⁵": 5, "ˣ⁶": 6, "ˣ⁷": 7,
+    "ˣ⁸": 8, "ˣ⁹": 9, "ˣ¹⁰": 10, "ˣ²⁰": 20, "ˣ³⁰": 30,
+    "ˣ⁴⁰": 40, "ˣ⁵⁰": 50,
+};
+
+function getMultiplier(name) {
+    for (const marker of Object.keys(SUPERSCRIPT_MULTIPLIERS)) {
+        if (name.includes(marker)) return SUPERSCRIPT_MULTIPLIERS[marker];
+    }
+    const suffixMatch = name.match(/((?:\d{1,3}\.)?\d+)\s*(?:倍|[x×])/i);
+    const prefixMatch = name.match(/(?:倍率|[x×])\s*((?:\d{1,3}\.)?\d+)/i);
+    const value = suffixMatch?.[1] || prefixMatch?.[1];
+    return value === undefined ? null : Number(value);
+}
+
+function hasHighMultiplier(name) {
+    const multiplier = getMultiplier(name);
+    return /高倍/i.test(name) || (multiplier !== null && multiplier > 1);
+}
 const keya =
     /港|Hong|HK|新加坡|SG|Singapore|日本|Japan|JP|美国|United States|US|韩|土耳其|TR|Turkey|Korea|KR|🇸🇬|🇭🇰|🇯🇵|🇺🇸|🇰🇷|🇹🇷/i;
 const keyb =
     /(((1|2|3|4)\d)|(香港|Hong|HK) 0[5-9]|((新加坡|SG|Singapore|日本|Japan|JP|美国|United States|US|韩|土耳其|TR|Turkey|Korea|KR) 0[3-9]))/i;
 const rurekey = {
-    GB: /UK/g,
     "B-G-P": /BGP/g,
-    "Russia Moscow": /Moscow/g,
-    "Korea Chuncheon": /Chuncheon|Seoul/g,
+    "Russia Moscow": /Moscow/gi,
+    "Korea Chuncheon": /Chuncheon|Seoul/gi,
     "Hong Kong": /Hongkong|HONG KONG/gi,
-    "United Kingdom London": /London|Great Britain/g,
-    "Dubai United Arab Emirates": /United Arab Emirates/g,
+    "United Kingdom London": /London|Great Britain/gi,
+    "Dubai United Arab Emirates": /United Arab Emirates/gi,
     "Taiwan TW 台湾 🇹🇼": /(台|Tai\s?wan|TW).*?🇨🇳|🇨🇳.*?(台|Tai\s?wan|TW)/g,
-    "United States": /USA|Los Angeles|San Jose|Silicon Valley|Michigan/g,
+    "United States": /\bUSA\b|Los Angeles|San Jose|Silicon Valley|Michigan/gi,
     澳大利亚: /澳洲|墨尔本|悉尼|土澳|(深|沪|呼|京|广|杭)澳/g,
     德国: /(深|沪|呼|京|广|杭)德(?!.*(I|线))|法兰克福|滬德/g,
     香港: /(深|沪|呼|京|广|杭)港(?!.*(I|线))/g,
@@ -158,13 +302,13 @@ const rurekey = {
     孟加拉国: /孟加拉/g,
     捷克: /捷克共和国/g,
     台湾: /新台|新北|台(?!.*线)/g,
-    Taiwan: /Taipei/g,
+    Taiwan: /Taipei/gi,
     韩国: /春川|韩|首尔/g,
-    Japan: /Tokyo|Osaka/g,
+    Japan: /Tokyo|Osaka|Fukuoka/gi,
     英国: /伦敦/g,
-    India: /Mumbai/g,
-    Germany: /Frankfurt/g,
-    Switzerland: /Zurich/g,
+    India: /Mumbai|New Delhi|Delhi/gi,
+    Germany: /Frankfurt/gi,
+    Switzerland: /Zurich/gi,
     俄罗斯: /莫斯科/g,
     土耳其: /伊斯坦布尔/g,
     泰国: /泰國|曼谷/g,
@@ -173,36 +317,17 @@ const rurekey = {
     Esnc: /esnc/gi
 };
 
-let GetK = false, AMK = [];
-function ObjKA(i) {
-    GetK = true;
-    AMK = Object.entries(i);
-}
-
 function operator(pro) {
-    const Allmap = {};
     const outList = getList(outputName);
-    let inputList,
-        retainKey = "";
-    if (inname !== "") {
-        inputList = [getList(inname)];
-    } else {
-        inputList = [ZH, FG, QC, EN];
-    }
-
-    inputList.forEach((arr) => {
-        arr.forEach((value, valueIndex) => {
-            Allmap[value] = outList[valueIndex];
-        });
-    });
 
     if (clear || nx || blnx || key) {
         pro = pro.filter((res) => {
             const resname = res.name;
+            const multiplier = getMultiplier(resname);
             const shouldKeep =
                 !(clear && nameclear.test(resname)) &&
-                !(nx && namenx.test(resname)) &&
-                !(blnx && !nameblnx.test(resname)) &&
+                !(nx && multiplier !== null && multiplier !== 1) &&
+                !(blnx && !hasHighMultiplier(resname)) &&
                 !(key && !(keya.test(resname) && /2|4|6|7/i.test(resname)));
             return shouldKeep;
         });
@@ -211,21 +336,26 @@ function operator(pro) {
     const BLKEYS = BLKEY ? BLKEY.split("+") : "";
 
     pro.forEach((e) => {
+        let retainKey = "";
         if (NEW_ADDRESS !== "") {
             e.server = NEW_ADDRESS;
             if (e.address !== undefined) e.address = NEW_ADDRESS;
         }
         let bktf = false, ens = e.name;
         Object.keys(rurekey).forEach((ikey) => {
-            if (rurekey[ikey].test(e.name)) {
-                e.name = e.name.replace(rurekey[ikey], ikey);
+            const matcher = rurekey[ikey];
+            matcher.lastIndex = 0;
+            if (matcher.test(e.name)) {
+                matcher.lastIndex = 0;
+                e.name = e.name.replace(matcher, ikey);
                 if (BLKEY) {
                     bktf = true;
                     let BLKEY_REPLACE = "",
                         re = false;
                     BLKEYS.forEach((i) => {
                         if (i.includes(">") && ens.includes(i.split(">")[0])) {
-                            if (rurekey[ikey].test(i.split(">")[0])) {
+                            matcher.lastIndex = 0;
+                            if (matcher.test(i.split(">")[0])) {
                                 e.name += " " + i.split(">")[0];
                             }
                             if (i.split(">")[1]) {
@@ -279,20 +409,12 @@ function operator(pro) {
         }
 
         if (bl) {
-            const match = e.name.match(
-                /((倍率|X|x|×)\D?((\d{1,3}\.)?\d+)\D?)|((\d{1,3}\.)?\d+)(倍|X|x|×)/
-            );
-            if (match) {
-                const rev = match[0].match(/(\d[\d.]*)/)[0];
-                if (rev !== "1") {
-                    const newValue = rev + "×";
-                    ikey = newValue;
-                }
-            }
+            const multiplier = getMultiplier(e.name);
+            if (multiplier !== null && multiplier !== 1) ikey = multiplier + "×";
         }
 
-        !GetK && ObjKA(Allmap);
-        const findKey = AMK.find(([key]) => e.name.includes(key));
+        const countryIndex = findCountryIndex(e.name);
+        const findKey = countryIndex === -1 ? null : [true, outList[countryIndex]];
 
         let firstName = "",
             nNames = "";
@@ -321,7 +443,7 @@ function operator(pro) {
                 const matchNum = e.name.match(/\d+$/);
                 const num = matchNum ? matchNum[0] : "01";
                 // e.name = '️🇺🇳 未知 【YoungYannick】'+ num;
-                e.name = '️🇺🇳 未知'+ num;
+                e.name = "🇺🇳 未知 " + num;
                 e.isUnknown = true;
             } else {
                 e.name = null;
@@ -381,7 +503,7 @@ function jxh(e) {
 
     unknownNodes.forEach((node, index) => {
         const paddedIndex = (index + 1).toString().padStart(2, '0');
-        node.name = `️🇺🇳 未知 ${paddedIndex}`;
+        node.name = `🇺🇳 未知 ${paddedIndex}`;
     });
 
     result.push(...unknownNodes);
@@ -425,7 +547,7 @@ function add_sequence_in_order(pro) {
 
     unknownNodes.forEach((node, index) => {
         const paddedIndex = (index + 1).toString().padStart(2, '0');
-        node.name = `️🇺🇳 未知 ${paddedIndex}`;
+        node.name = `🇺🇳 未知 ${paddedIndex}`;
     });
     pro.forEach(node => delete node.isUnknown);
 
