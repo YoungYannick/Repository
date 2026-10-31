@@ -134,9 +134,9 @@ proxy-groups:
     use:
       - xxxxx_provider
     proxies:
+      - DIRECT
       - 手动切换
       - 自动选择
-      - DIRECT
 
   - name: 漏网之鱼
     type: select
